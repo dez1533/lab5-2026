@@ -1,75 +1,59 @@
-from src.library import Library
-from src.book import Book
-from src.magazine import Magazine
+"""Демонстраційний скрипт роботи симулятора фентезі-таверни (Варіант 8)."""
+
+from src.tavern import Tavern
+from src.customer import Customer
+from src.adventurer import Adventurer
+from src.troublemaker import Troublemaker
+from src.entities import MenuItem, Room, Event
+
 
 def main():
-    # Створення бібліотеки
-    library = Library()
+    print("=== СИМУЛЯТОР ФЕНТЕЗІ-ТАВЕРНИ (ВАРІАНТ 8) ===\n")
+    tavern = Tavern("П'яний Дракон")
 
-    # Додавання книг
-    book1 = Book("1984", "George Orwell", 1949, "978-0451524935")
-    book2 = Book("To Kill a Mockingbird", "Harper Lee", 1960, "978-0446310789")
-    book3 = Book("The Great Gatsby", "F. Scott Fitzgerald", 1925, "978-0743273565")
+    # 1. Управління запасами та приготування страв
+    tavern.manage_inventory("Драконячий перець", 10)
+    tavern.manage_inventory("Ельфійський солод", 25)
+    drink1 = MenuItem("Ельфійський ель", 15, "+10 до красномовства")
+    food1 = MenuItem("Печеня з вогнедишним перцем", 30, "Опір вогню на 1 годину")
+    print(tavern.prepare_item(drink1))
+    print(tavern.prepare_item(food1))
 
-    library.add_item(book1)
-    library.add_item(book2)
-    library.add_item(book3)
+    # 2. Додавання відвідувачів різних типів
+    c1 = Customer("Торін", "Гном", 120, "Ельфійський ель")
+    a1 = Adventurer("Ґеральт", "Відьмак", 350, "Мисливець на чудовиськ", "S")
+    t1 = Troublemaker("Громмаш", "Орк", 60, 6)
+    t2 = Troublemaker("Азог Осквернитель", "Орк", 90, 10)
 
-    # Додавання журналів
-    magazine1 = Magazine("National Geographic", "Various", 2023, 1)
-    magazine2 = Magazine("Time", "Various", 2023, 15)
+    for v in (c1, a1, t1, t2):
+        tavern.add_visitor(v)
 
-    library.add_item(magazine1)
-    library.add_item(magazine2)
+    print(f"\nСтатус: {tavern}")
+    print("\n--- Всі відвідувачі у залі (відсортовані за золотом) ---")
+    for visitor in tavern.sort_visitors_by_gold():
+        print(f"  * {visitor}")
 
-    # Виведення всіх предметів у бібліотеці
-    print("Всі предмети в бібліотеці:")
-    for item in library._items:
-        print(item)
-    print()
+    # 3. Обслуговування відвідувачів (Поліморфізм)
+    print("\n--- Обслуговування відвідувачів ---")
+    print(tavern.serve_visitor(c1, "Ельфійський ель"))
+    print(tavern.serve_visitor(a1, "Печеня з вогнедишним перцем"))
 
-    # Пошук за ключовим словом
-    keyword = "Orwell"
-    print(f"Результати пошуку за ключовим словом '{keyword}':")
-    for item in library.search(keyword):
-        print(item)
-    print()
+    # 4. Події та дошка квестів
+    print("\n--- Організація подій та квестів ---")
+    tavern.quest_board.add_quest("Очистити старі катакомби", 200)
+    print(tavern.organize_event(Event("Вечір бардівських балад", "Знижки на ель та музика")))
+    print(f"{tavern.quest_board}: {tavern.quest_board.quests[0]['title']}")
 
-    # Пошук за роком
-    year = 1925
-    print(f"Результати пошуку за роком {year}:")
-    for item in library.search_by_year(year):
-        print(item)
-    print()
+    # 5. Вирішення конфліктів
+    print("\n--- Вирішення конфліктів у таверні ---")
+    print(tavern.resolve_conflict(t1))
+    print(tavern.resolve_conflict(t2))
 
-    # Отримання всіх книг
-    print("Всі книги в бібліотеці:")
-    for book in library.get_all_books():
-        print(book)
-    print()
+    # 6. Пошук
+    print("\n--- Пошук відвідувачів за словом 'Гном' ---")
+    for res in tavern.search_visitors("Гном"):
+        print(f"  Знайдено: {res}")
 
-    # Отримання всіх журналів
-    print("Всі журнали в бібліотеці:")
-    for magazine in library.get_all_magazines():
-        print(magazine)
-    print()
-
-    # Видалення предмету
-    print("Видалення 'To Kill a Mockingbird'")
-    library.remove_item(book2)
-
-    # Виведення оновленого списку предметів
-    print("Оновлений список предметів у бібліотеці:")
-    for item in library._items:
-        print(item)
-    print()
-
-    # Спроба додати неправильний тип об'єкта
-    print("Спроба додати неправильний тип об'єкта:")
-    try:
-        library.add_item("Це не об'єкт LibraryItem")
-    except TypeError as e:
-        print(f"Помилка: {e}")
 
 if __name__ == "__main__":
     main()
